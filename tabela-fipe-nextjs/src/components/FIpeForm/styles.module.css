@@ -1,0 +1,26 @@
+/* src/components/FipeForm/styles.module.css */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  max-width: 400px;
+}
+
+.radioGroup {
+  display: flex;
+  gap: 1rem;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.select {
+  padding: 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
