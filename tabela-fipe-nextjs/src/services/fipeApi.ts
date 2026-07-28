@@ -7,7 +7,9 @@ const BASE_URL = 'https://fipe.parallelum.com.br/api/v2';
 export const fipeApi = {
   // Busca as marcas (ex: Fiat, Honda)
   async getBrands(vehicleType: string): Promise<FipeOption[]> {
-    const response = await fetch(`${BASE_URL}/${vehicleType}/brands`);
+    const response = await fetch(`${BASE_URL}/${vehicleType}/brands`, {
+      next: {revalidate: 3500}
+    });
     if (!response.ok) throw new Error('Erro ao buscar as marcas');
     return response.json();
   },

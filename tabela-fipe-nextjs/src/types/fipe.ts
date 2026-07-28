@@ -3,11 +3,11 @@
 export type VehicleType = 'cars' | 'motorcycles' | 'trucks';
 
 export interface FipeOption {
-  codigo: string;
-  nome: string;
+  code: string;
+  name: string;
 }
 
 export interface FipeModelsResponse {
-  modelos: FipeOption[];
-  anos: FipeOption[];
+  models: FipeOption[];
+  years: FipeOption[];
 }
