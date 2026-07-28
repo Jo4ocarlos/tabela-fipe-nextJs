@@ -1,6 +1,6 @@
 // src/services/fipeApi.ts
 
-import type { FipeOption } from '../types/fipe';
+import type { FipeOption, FipeResult } from '../types/fipe';
 
 const BASE_URL = 'https://fipe.parallelum.com.br/api/v2';
 
@@ -24,6 +24,13 @@ export const fipeApi = {
   // Busca os anos disponíveis de um modelo específico (ex: 2010, 2020)
   async getYears(vehicleType: string, brandId: string, modelId: string): Promise<FipeOption[]> {
     const response = await fetch(`${BASE_URL}/${vehicleType}/brands/${brandId}/models/${modelId}/years`);
+    if (!response.ok) throw new Error('Erro ao buscar os anos');
+    return response.json();
+  },
+
+  //Busca todas as informações do veiculo especifico
+  async getAllInfo(vehicleType: string, brandId: string, modelId: string, yearId:string): Promise<FipeResult> {
+    const response = await fetch(`${BASE_URL}/${vehicleType}/brands/${brandId}/models/${modelId}/years/${yearId}`);
     if (!response.ok) throw new Error('Erro ao buscar os anos');
     return response.json();
   }
