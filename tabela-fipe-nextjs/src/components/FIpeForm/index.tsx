@@ -1,7 +1,9 @@
 'use client'
 import { fipeApi } from '@/services/fipeApi';
-import type { FipeOption, FipeResult } from '@/types/fipe';
+import type { FipeOption } from '@/types/fipe';
 import { useEffect, useState, type ChangeEvent, type SyntheticEvent } from 'react';
+import { useRouter } from 'next/navigation';
+import { useFipe } from '../../contexts/FipeContext'; //  hook customizado
 
 //css
 import styles from './styles.module.css'
@@ -17,9 +19,13 @@ export default function FipeForm(){
   const [brands, setBrands] = useState<FipeOption[]>([]);
   const [models, setModels] = useState<FipeOption[]>([]);
   const [years, setYears] = useState<FipeOption[]>([]);
-  
-  //estado que guarda os dados que serão exbidos na nela
-  const [allInfo, setAllInfo]= useState<FipeResult | null>(null)
+
+  // Estado para capturar e exibir erros na tela
+  const [error, setError] = useState<string>('');
+
+  //context
+  const { fetchVehicleResult, isLoadingResult } = useFipe();
+  const router = useRouter();
 
   // Estado de Loading para dar feedback visual
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -50,18 +56,18 @@ export default function FipeForm(){
     setSelectedYear(e.target.value);
   };
 
- 
-
 
 // Busca MARCAS quando o TIPO de veículo muda ou a tela carrega
   useEffect(() => {
     const fetchBrands = async () => {
       setIsLoading(true);
+      setError('');
       try {
         const data = await fipeApi.getBrands(vehicleType);
         setBrands(data);
       } catch (error) {
         console.error("Erro ao buscar marcas:", error);
+        setError('Falha ao carregar as marcas. Tente novamente mais tarde.');
       } finally {
         setIsLoading(false);
       }
@@ -77,11 +83,13 @@ export default function FipeForm(){
 
     const fetchModels = async () => {
       setIsLoading(true);
+      setError('');
       try {
         const data = await fipeApi.getModels(vehicleType, selectedBrand);
         setModels(data);
       } catch (error) {
         console.error("Erro ao buscar modelos:", error);
+        setError('Falha ao carregar os modelos. Tente novamente mais tarde.');
       } finally {
         setIsLoading(false);
       }
@@ -96,11 +104,13 @@ export default function FipeForm(){
 
     const fetchYears = async () => {
       setIsLoading(true);
+      setError('');
       try {
         const data = await fipeApi.getYears(vehicleType, selectedBrand, selectedModel);
         setYears(data);
       } catch (error) {
         console.error("Erro ao buscar anos:", error);
+        setError('Falha ao carregar os anos. Tente novamente mais tarde.');
       } finally {
         setIsLoading(false);
       }
@@ -109,109 +119,89 @@ export default function FipeForm(){
     fetchYears();
   }, [selectedModel, selectedBrand, vehicleType]);
 
-// A função que busca todas as informações sobre o veiculo escolhido
+// A função que busca o resultado final e muda de página
   const handleSubmit = async (e: SyntheticEvent<HTMLFormElement>) => {
-  
     e.preventDefault(); 
     
-    //só busca se o ano foi selecionado
     if (!selectedYear) return; 
 
-    setIsLoading(true);
-    try {
-      const data = await fipeApi.getAllInfo(vehicleType, selectedBrand, selectedModel, selectedYear);
-      setAllInfo(data); 
-    } catch (error) {
-      console.error("Erro ao buscar os dados da api", error);
-    } finally {
-      setIsLoading(false);
+    setError('');
+    // Usamos a função do contexto! Ela retorna true se a requisição deu certo.
+    const success = await fetchVehicleResult(vehicleType, selectedBrand, selectedModel, selectedYear);
+    
+    if (success) {
+      router.push('/resultado');// navega para a página de resultado!
+    }else{
+      setError('Ocorreu um erro ao consultar o preço final. Verifique sua conexão.');
     }
   };
-
-    console.log(allInfo)
   
 
   
   return(
     <div className={styles.container}>
-      {/** Grupo de radios para os tipos */}
-      <div className={styles.radioGroup}>
-        <label>
-          <input type="radio" name="vehicle" onChange={handleVehicleChange} value="cars" checked={vehicleType === 'cars'}/>
-          <span>Carro</span>
-        </label>
-        <label>
-          <input type="radio" name="vehicle" onChange={handleVehicleChange} value="motorcycles" checked={vehicleType === 'motorcycles'}/>
-          <span>Moto</span>
-        </label>
-        <label>
-          <input type="radio" name="vehicle" onChange={handleVehicleChange} value="trucks" checked={vehicleType === 'trucks'}/>
-          <span>Caminhão</span>
-        </label>
-      </div>
-
-      {/** Formulário com os Selects */}
-      <form className={styles.form} onSubmit={handleSubmit}>
-
-        {/* Select de MARCAS */}
-        <select className={styles.select} value={selectedBrand} onChange={handleBrandChange} disabled={isLoading}>
-          <option value="">{isLoading ? 'Carregando...' : 'Selecione a marca'}</option>
-          {brands && brands.map((brand) => (
-            <option key={brand.code} value={brand.code}>
-              {brand.name}
-            </option>
-          ))}
-        </select>
-
-        {/* Select de MODELOS */}
-        <select className={styles.select} value={selectedModel} onChange={handleModelChange} disabled={!selectedBrand || isLoading}>
-          <option value="">Selecione o modelo</option>
-          {models.map((model) => (
-            <option key={model.code} value={model.code}>
-              {model.name}
-            </option>
-          ))}
-        </select>
-
-        {/* Select de ANOS */}
-        <select className={styles.select} value={selectedYear} onChange={handleYearChange} disabled={!selectedModel || isLoading}>
-          <option value="">Selecione o ano</option>
-          {years.map((year) => (
-            <option key={year.code} value={year.code}>
-              {year.name}
-            </option>
-          ))}
-        </select>
-
-        <button 
-          type="submit" 
-          disabled={!selectedYear || isLoading} >
-          {isLoading ? 'Buscando...' : 'Consultar Preço'}
-        </button>
-      </form>
-      <div>
-        {/* Renderização do Resultado na Tela */}
-      {allInfo && (
-        <div>
       
-          <h2>Resultado</h2>
-          
-          <div>
-            <h3>
-              Tabela Fipe: {allInfo.brand} {allInfo.model} {allInfo.modelYear}
-            </h3>
-          
-            <span>
-              {allInfo.price}
-            </span>
-            
-            <p>
-              Este é o preço de compra do veículo
-            </p>
-          </div>
-        </div>
-      )}
+
+      <div className={styles.header}>
+        <h2>Tabela Fipe</h2>
+        <p>Consulte o valor de um veículo de forma gratuita</p>
       </div>
+
+      {/* Card principal flutuante */}
+      <div className={styles.card}>
+        
+        {/* Grupo de radios */}
+        <div className={styles.radioGroup}>
+          <label className={styles.radioLabel}>
+            <input type="radio" name="vehicle" onChange={handleVehicleChange} value="cars" checked={vehicleType === 'cars'}/>
+            <span>Carro</span>
+          </label>
+          <label className={styles.radioLabel}>
+            <input type="radio" name="vehicle" onChange={handleVehicleChange} value="motorcycles" checked={vehicleType === 'motorcycles'}/>
+            <span>Moto</span>
+          </label>
+          <label className={styles.radioLabel}>
+            <input type="radio" name="vehicle" onChange={handleVehicleChange} value="trucks" checked={vehicleType === 'trucks'}/>
+            <span>Caminhão</span>
+          </label>
+        </div>
+
+        {/* Formulário */}
+        <form className={styles.form} onSubmit={handleSubmit}>
+          
+          <select className={styles.select} value={selectedBrand} onChange={handleBrandChange} disabled={isLoading}>
+            <option value="">{isLoading ? 'Carregando...' : 'Selecione a marca'}</option>
+            {brands && brands.map((brand) => (
+              <option key={brand.code} value={brand.code}>{brand.name}</option>
+            ))}
+          </select>
+
+          <select className={styles.select} value={selectedModel} onChange={handleModelChange} disabled={!selectedBrand || isLoading}>
+            <option value="">Selecione o modelo</option>
+            {models.map((model) => (
+              <option key={model.code} value={model.code}>{model.name}</option>
+            ))}
+          </select>
+
+          <select className={styles.select} value={selectedYear} onChange={handleYearChange} disabled={!selectedModel || isLoading}>
+            <option value="">Selecione o ano</option>
+            {years.map((year) => (
+              <option key={year.code} value={year.code}>{year.name}</option>
+            ))}
+          </select>
+
+          <button className={styles.submitButton} type="submit" disabled={!selectedYear || isLoading}>
+            {isLoadingResult ? 'Buscando...' : 'Consultar preço'}
+          </button>
+        </form>
+        {/* Renderização Condicional do Erro */}
+        {error && (
+          <div className={styles.errorMessage}>
+            {error}
+          </div>
+        )}
+      </div>
+
     </div>
   )
 

@@ -1,5 +1,5 @@
 
-import FipeForm from "@/components/FIpeForm";
+import FipeForm from "@/components/FipeForm";
 import styles from "./page.module.css";
 
 export default function Home() {

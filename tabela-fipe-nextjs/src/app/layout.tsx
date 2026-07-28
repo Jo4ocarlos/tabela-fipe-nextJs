@@ -1,15 +1,21 @@
+//css
 import "./globals.css";
-
+// app/layout.tsx
+import { FipeProvider } from '../contexts/FipeContext'; 
 
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+}: {
+  children: React.ReactNode
+}) {
   return (
     <html lang="pt-br">
-      <body suppressHydrationWarning>{children}</body>
+      <body>
+        <FipeProvider>
+          {children}
+        </FipeProvider>
+      </body>
     </html>
-  );
+  )
 }

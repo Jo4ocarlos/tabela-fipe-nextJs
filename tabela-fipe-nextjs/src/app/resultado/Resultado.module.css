@@ -1,0 +1,78 @@
+/* app/resultado/page.module.css */
+
+.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: sans-serif;
+  min-height: 90vh;
+}
+
+.resultWrapper {
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.resultMainTitle {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+  align-self: flex-start;
+  padding-left: 1rem;
+}
+
+.resultContainer {
+  background-color: #dcf5f2; 
+  padding: 3rem 2rem;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 15px rgba(0, 163, 124, 0.1);
+  width: 100%;
+}
+
+.resultSubtitle {
+  font-size: 1.25rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+  font-weight: 700;
+}
+
+.pricePill {
+  display: inline-block;
+  background-color: #00a37c;
+  color: #ffffff;
+  font-size: 2rem;
+  font-weight: 800;
+  padding: 0.75rem 2.5rem;
+  border-radius: 50px;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 10px rgba(0, 163, 124, 0.3);
+}
+
+.resultDescription {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 500;
+}
+
+/* Estilo do botão de voltar */
+.backButton {
+  margin-top: 2rem;
+  padding: 0.75rem 2rem;
+  background-color: transparent;
+  color: #5c16c5;
+  border: 2px solid #5c16c5;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.backButton:hover {
+  background-color: #5c16c5;
+  color: white;
+}
